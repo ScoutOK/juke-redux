@@ -58,7 +58,7 @@
 	
 	var _AppContainer2 = _interopRequireDefault(_AppContainer);
 	
-	var _AlbumContainer = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./containers/AlbumContainer\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _AlbumContainer = __webpack_require__(204);
 	
 	var _AlbumContainer2 = _interopRequireDefault(_AlbumContainer);
 	
@@ -23559,6 +23559,134 @@
 	module.exports = invariant;
 	
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 204 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _Albums = __webpack_require__(205);
+	
+	var _Albums2 = _interopRequireDefault(_Albums);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var connect = __webpack_require__(195).connect;
+	
+	
+	var AlbumContainer = connect(function mapStateToProps(state, ownProps) {
+	  return {
+	    albums: state.albums
+	  };
+	}, function mapDispatchToProps(dispatch, existingProps) {
+	  return {
+	    goToAlbums: function goToAlbums(albums) {
+	      dispatch({
+	        type: 'LOAD ALBUMS',
+	        albums: albums
+	      });
+	    }
+	  };
+	})(_Albums2.default);
+	
+	module.exports = AlbumContainer;
+
+/***/ },
+/* 205 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Albums = function (_React$Component) {
+	  _inherits(Albums, _React$Component);
+	
+	  function Albums() {
+	    _classCallCheck(this, Albums);
+	
+	    return _possibleConstructorReturn(this, (Albums.__proto__ || Object.getPrototypeOf(Albums)).apply(this, arguments));
+	  }
+	
+	  _createClass(Albums, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      fetch('/api/albums').then(function (res) {
+	        return res.json();
+	      }).then(function (albums) {
+	        return console.log(albums);
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h3',
+	          null,
+	          'Albums'
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-xs-4' },
+	            _react2.default.createElement(
+	              'a',
+	              { className: 'thumbnail', href: '#' },
+	              _react2.default.createElement('img', { src: 'http://placeholdit.imgix.net/~text?txtsize=33&txt=ALBUMoneIMAGE&w=300&h=300' }),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'caption' },
+	                _react2.default.createElement(
+	                  'h5',
+	                  null,
+	                  _react2.default.createElement(
+	                    'span',
+	                    null,
+	                    'ALBUM ONE NAME HERE'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'small',
+	                  null,
+	                  'NUMBER OF SONGS HERE songs'
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return Albums;
+	}(_react2.default.Component);
+	
+	exports.default = Albums;
+	;
+	
+	module.exports = Albums;
 
 /***/ }
 /******/ ]);
