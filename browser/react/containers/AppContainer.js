@@ -9,6 +9,10 @@ import Sidebar from '../components/Sidebar';
 import Album from '../components/Album';
 import Player from '../components/Player';
 
+import AlbumContainer from './AlbumContainer';
+
+import store from '../store'
+
 
 const convertSong = song => {
   song.audioUrl = `/api/songs/${song.id}/audio`;
@@ -114,12 +118,16 @@ export default class AppContainer extends Component {
           <Sidebar />
         </div>
         <div className="col-xs-10">
+          {/*ternary to dislay either album list or single album*/}
+          {this.state.home ?
+          <AlbumContainer /> :
           <Album
             album={this.state.album}
             currentSong={this.state.currentSong}
             isPlaying={this.state.isPlaying}
             toggle={this.toggleOne}
           />
+          }
         </div>
         <Player
           currentSong={this.state.currentSong}
