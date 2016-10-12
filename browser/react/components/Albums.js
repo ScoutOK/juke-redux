@@ -3,7 +3,7 @@
 import React from 'react';
 import bigStore, {store} from '../store';
 import initialState from '../initialState';
-console.log(store);
+
 
 export default class Albums extends React.Component{
   constructor () {
@@ -29,7 +29,6 @@ export default class Albums extends React.Component{
         <h3>Albums</h3>
         <div className="row">
           {/*repreated album component starts here*/}
-          {console.log('console logging this.props from render', this.props)}
           {this.props.albums && this.props.albums.map(function (album) {
             return (
           <div className="col-xs-4" key={album.id}>

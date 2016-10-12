@@ -5,6 +5,6 @@ const initialState = {
   isPlaying: false,
   progress: 0,
   albums: [],
-  home: true
+  home: false
 };
 export default initialState;

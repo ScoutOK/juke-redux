@@ -21681,7 +21681,7 @@
 	  isPlaying: false,
 	  progress: 0,
 	  albums: [],
-	  home: true
+	  home: false
 	};
 	exports.default = initialState;
 
@@ -21946,6 +21946,11 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.store = exports.fetchAlbums = exports.receiveAlbums = exports.toggle = exports.startSong = exports.load = exports.pause = exports.play = undefined;
+	
 	var _initialState = __webpack_require__(173);
 	
 	var _initialState2 = _interopRequireDefault(_initialState);
@@ -21960,51 +21965,158 @@
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
+	var _audio = __webpack_require__(174);
+	
+	var _audio2 = _interopRequireDefault(_audio);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var logger = (0, _reduxLogger2.default)();
 	var middleware = (0, _redux.applyMiddleware)(logger, _reduxThunk2.default);
 	
+	//action types
 	var LOAD_ALBUMS = 'LOAD ALBUMS';
+	var START_PLAYING = 'START_PLAYING';
+	var STOP_PLAYING = 'STOP_PLAYING';
+	var SET_CURRENT_SONG = 'SET_CURRENT_SONG';
 	
-	function reducer(prevState, action) {
-	  prevState = prevState || _initialState2.default;
+	//reducer components
+	var generateAlbums = function generateAlbums(prevState, action) {
+	  //prevState = prevState || [];
 	  action = action || {};
-	  console.log('action ', action);
-	  var newState = {};
 	  switch (action.type) {
 	    case LOAD_ALBUMS:
-	      newState = Object.assign({}, prevState, {
-	        albums: action.albums
-	      });
-	      break;
+	      return action.albums;
+	    default:
+	      return [];
 	  }
-	  console.log('new state ', newState);
-	  return newState;
-	}
+	};
 	
-	var receiveAlbums = function receiveAlbums(albums) {
+	var isPlaying = function isPlaying(prevState, action) {
+	  //prevState = prevState || false;
+	  action = action || {};
+	  switch (action.type) {
+	    case START_PLAYING:
+	      return true;
+	    case STOP_PLAYING:
+	      return false;
+	    default:
+	      return false;
+	  }
+	};
+	
+	var currentSong = function currentSong(prevState, action) {
+	  action = action || {};
+	  switch (action.type) {
+	    case SET_CURRENT_SONG:
+	      return action.currentSong;
+	    default:
+	      return {};
+	  }
+	};
+	
+	var currentSongList = function currentSongList(prevState, action) {
+	  action = action || {};
+	  switch (action.type) {
+	    case SET_CURRENT_SONG:
+	      return action.currentSongList;
+	    default:
+	      return [];
+	  }
+	};
+	
+	//synchronous action creators
+	var startPlaying = function startPlaying() {
+	  return { type: START_PLAYING };
+	};
+	var stopPlaying = function stopPlaying() {
+	  return { type: STOP_PLAYING };
+	};
+	
+	var setCurrentSong = function setCurrentSong(currentSong, currentSongList) {
+	  return {
+	    type: SET_CURRENT_SONG,
+	    currentSong: currentSong,
+	    currentSongList: currentSongList
+	  };
+	};
+	
+	var play = exports.play = function play() {
+	  return function (dispatch) {
+	    _audio2.default.play();
+	    // this.setState({ isPlaying: true });
+	    dispatch(startPlaying());
+	  };
+	};
+	
+	var pause = exports.pause = function pause() {
+	  return function (dispatch) {
+	    _audio2.default.pause();
+	    //this.setState({ isPlaying: false });
+	    dispatch(stopPlaying());
+	  };
+	};
+	
+	var load = exports.load = function load(currentSong, currentSongList) {
+	  return function (dispatch) {
+	    _audio2.default.src = currentSong.audioUrl;
+	    _audio2.default.load();
+	    dispatch(setCurrentSong(currentSong, currentSongList));
+	    //this.setState({ currentSong, currentSongList });
+	  };
+	};
+	
+	var startSong = exports.startSong = function startSong(song, list) {
+	  return function (dispatch) {
+	    dispatch(pause());
+	    dispatch(load(song, list));
+	    dispatch(play());
+	  };
+	};
+	
+	//left toggles for later
+	
+	// toggleOne (selectedSong, selectedSongList) {
+	//   if (selectedSong.id !== this.state.currentSong.id)
+	//     this.startSong(selectedSong, selectedSongList);
+	//   else this.toggle();
+	// }
+	
+	var toggle = exports.toggle = function toggle() {
+	  return function (dispatch, getState) {
+	    if (getState()) dispatch(pause());else dispatch(play());
+	  };
+	};
+	
+	//action creator for album view
+	var receiveAlbums = exports.receiveAlbums = function receiveAlbums(albums) {
 	  return { type: LOAD_ALBUMS, albums: albums };
 	};
 	
-	var store = (0, _redux.createStore)(reducer, middleware);
-	
-	var fetchAlbumsFromServer = function fetchAlbumsFromServer() {
+	//async action creator
+	var fetchAlbums = exports.fetchAlbums = function fetchAlbums() {
 	  return function (dispatch) {
 	    fetch('/api/albums').then(function (res) {
 	      return res.json();
 	    })
 	    // use the dispatch method the thunkMiddleware gave us
 	    .then(function (albums) {
-	      return dispatch(receiveAlbums(albums));
+	      albums = albums.map(function (album) {
+	        album.imageUrl = '/api/albums/' + album.id + '/image';
+	        return album;
+	      });
+	      dispatch(receiveAlbums(albums));
 	    });
 	  };
 	};
 	
-	module.exports = {
-	  store: store,
-	  receiveAlbums: receiveAlbums
-	};
+	//define reducer
+	var reducer = (0, _redux.combineReducers)({ albums: generateAlbums,
+	  isPlaying: isPlaying,
+	  currentSong: currentSong,
+	  currentSongList: currentSongList });
+	
+	var store = exports.store = (0, _redux.createStore)(reducer, middleware);
 
 /***/ },
 /* 180 */
@@ -23614,28 +23726,10 @@
 	
 	var _store = __webpack_require__(179);
 	
-	var _store2 = _interopRequireDefault(_store);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var connect = __webpack_require__(195).connect;
 	
-	
-	var fetchAlbums = function fetchAlbums() {
-	  return function (dispatch) {
-	    fetch('/api/albums').then(function (res) {
-	      return res.json();
-	    })
-	    // use the dispatch method the thunkMiddleware gave us
-	    .then(function (albums) {
-	      albums = albums.map(function (album) {
-	        album.imageUrl = '/api/albums/' + album.id + '/image';
-	        return album;
-	      });
-	      dispatch((0, _store.receiveAlbums)(albums));
-	    });
-	  };
-	};
 	
 	var AlbumContainer = connect(function mapStateToProps(state, ownProps) {
 	  return {
@@ -23644,7 +23738,7 @@
 	}, function mapDispatchToProps(dispatch, existingProps) {
 	  return {
 	    goToAlbums: function goToAlbums() {
-	      dispatch(fetchAlbums());
+	      dispatch((0, _store.fetchAlbums)());
 	    }
 	  };
 	})(_Albums2.default);
@@ -23682,8 +23776,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	console.log(_store.store);
 	
 	var Albums = function (_React$Component) {
 	  _inherits(Albums, _React$Component);
@@ -23726,7 +23818,6 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'row' },
-	          console.log('console logging this.props from render', this.props),
 	          this.props.albums && this.props.albums.map(function (album) {
 	            return _react2.default.createElement(
 	              'div',
